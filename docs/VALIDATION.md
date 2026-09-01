@@ -63,3 +63,23 @@ model, Wagner isotropic conductivities, individual dI/dt).
 Full angle–EF99.9 curves for these two cases are in `data/`; the reported
 values above are the θ = 0 and argmax rows of those curves, so a re-run of
 this subject must reproduce them exactly (same solver, same mesh).
+
+## Addendum 2026-09-01 — direction convention finalised
+
+1. **E rides on coil-Y.** Across both cohorts the cortical hotspot E vector
+   aligns with the coil's Y axis (4–23°) and is ~perpendicular to X. The
+   historical auto-flip guarded X; the corrected rule (`forward_axis='Y'`)
+   enforces anterior E at theta=0. |E|-equivalence of the two flips verified
+   by a full independent 36-angle re-sweep: max |diff| = 0.001 V/m.
+2. **Export sign bug found and corrected.** One cohort's DLPFC `.2` vectors
+   had a sign-flipped y-component (0/37 positive; healthy groups 27–36/38),
+   reconstructing E backwards in 33/37. After correcting the component sign,
+   anterior E restored in 37/37 — matching operator practice (all placements
+   made with anterior E). Effect on results: optimal EF99.9 and all geometry
+   unchanged; original-orientation values recomputed (1 FEM/case).
+3. **CSD sensitivity**: EF99.9 falls 4.2 %/mm of CSD (10-subject test,
+   1–4 mm, all adjacent pairs p = 0.002); the optimal yaw is invariant to
+   coil height.
+4. **Final cohort values (forward-enforced, all corrections applied):**
+   TC38 EF99.9 orig 176.7 / opt 190.5 V/m (M1+DLPFC pooled);
+   new cohort orig 175.0 / opt 191.4 V/m.

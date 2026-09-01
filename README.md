@@ -74,6 +74,23 @@ Double header (row 1 = groups, row 2 = names); per subject:
 - `<out-dir>/<sub>/<target>_sweep.csv|*.hdf5` — full angle–EF99.9 curves
 - `<art-dir>/<sub>/opt/` — θ* result meshes (Gmsh-ready, official path)
 
+## Direction convention (updated 2026-09)
+
+* The induced E of a figure-8 rides on the **coil-Y axis** (measured E-vs-Y
+  angle 4–23° across two cohorts). `build_matsimnibs_final` therefore enforces
+  an **anterior E at theta = 0** by flipping 180° about Z when coil-Y points
+  posterior (`forward_axis='Y'`). The historical X-based flip differs only by
+  the 180° twin — **every |E| value is identical** (A/B full-sweep check:
+  max 0.001 V/m).
+* The **optimal orientation is reported as the forward-E twin** (identical
+  |E|), so all reported E directions are anterior, matching navigated-TMS
+  practice.
+* **Data-quality check**: one cohort's DLPFC direction exports carried a
+  sign-flipped y-component (0/37 positive vs 27–36/38 in healthy groups),
+  which reconstructed E backwards. `detect_direction_convention()` flags such
+  groups; correcting the component sign restored anterior E in 37/37 cases.
+  Run this check on any new cohort before analysis.
+
 ## Validation
 
 Validated end-to-end on two independent cohorts (37 + 38 subjects, 150

@@ -118,8 +118,19 @@ def build_trimesh_from_tag(mesh, tag):
     return trimesh.Trimesh(vertices=verts, faces=tris, process=False)
 
 
-def build_matsimnibs_final(raw_pos, raw_dir, gm_target):
-    """4x4 matsimnibs, final rule: two-point Z, YZ-swap handle, auto-flip."""
+def build_matsimnibs_final(raw_pos, raw_dir, gm_target, forward_axis='Y'):
+    """4x4 matsimnibs, final rule: two-point Z, YZ-swap handle, E-forward flip.
+
+    forward_axis='Y' (default, corrected 2026-09): flip 180 deg about Z when
+    the coil-Y axis points posterior (Y[1] < 0). The induced E of a figure-8
+    rides on coil-Y (measured E-vs-Y angle 4-23 deg across two cohorts), so
+    this enforces an ANTERIOR E field at theta = 0, matching navigated-TMS
+    practice. The historical implementation flipped on X[1] < 0; the two
+    conventions differ only by the 180-deg twin, so every |E| result is
+    identical (verified to 0.001 V/m over a full 36-angle sweep).
+
+    forward_axis='X' reproduces the historical behaviour for reference.
+    """
     sim_pos = np.array([-raw_pos[0], -raw_pos[1], raw_pos[2]])
     traj = np.asarray(gm_target) - sim_pos
     Z = traj / np.linalg.norm(traj)
@@ -133,9 +144,36 @@ def build_matsimnibs_final(raw_pos, raw_dir, gm_target):
     X /= np.linalg.norm(X)
     m = np.eye(4)
     m[:3, 0] = X; m[:3, 1] = Y; m[:3, 2] = Z; m[:3, 3] = sim_pos
-    if X[1] < 0:                                          # E-field forward
+    flip_cond = (Y[1] < 0) if forward_axis == 'Y' else (X[1] < 0)
+    if flip_cond:                                            # E-field forward
         m = m @ np.diag([-1., -1., 1., 1.])
     return m
+
+
+def forward_e(mat):
+    """True if the coil frame's E-riding axis (coil-Y) points anterior."""
+    return bool(mat[:3, 1][1] > 0)
+
+
+def forward_twin_dir(dir_vec):
+    """Negate an E direction vector if it points posterior (180-deg twin has
+    an identical |E| field, so reporting the forward twin is loss-free)."""
+    d = np.asarray(dir_vec, dtype=float)
+    return -d if d[1] < 0 else d
+
+
+def detect_direction_convention(entries, target, key='dir'):
+    """Cohort-level data-quality check for direction-vector export sign bugs.
+
+    Scans the raw '.2' vectors of a cohort/target group and reports the count
+    with a positive y-component. In a healthy export (validated convention)
+    most cases are positive; a group with ~0/n positive has its y-component
+    sign flipped at export (observed in one cohort's DLPFC: 0/37 vs 27-36/38
+    in the three healthy groups -> E direction reconstructed backwards).
+    Returns (n_positive, n_total).
+    """
+    ys = [e[target][key][1] for e in entries if target in e]
+    return int(sum(1 for y in ys if y > 0)), len(ys)
 
 
 def signed_line_hits(tm, point, direction):
