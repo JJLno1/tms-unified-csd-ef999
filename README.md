@@ -6,6 +6,11 @@ and re-evaluate **EF99.9** (99.9th percentile of |E| in the 5 mm GM target
 sphere) for the original and the **optimal coil yaw**, with a **real FEM solve
 for every candidate angle** (5° steps, no ADM approximation).
 
+> **Scope.** This repository implements the clinical M1/DLPFC unified-CSD
+> workflow (`TARGETS = ['M1', 'DLPFC']`). The C3/F3 and HCP-template-cohort
+> analyses were produced by separate workflows and are not part of this
+> repository.
+
 ## Why
 
 In Nexstim-navigated cohorts the recorded coil centre is often slightly
@@ -24,7 +29,8 @@ Per subject × target (M1 / DLPFC), on a charm head mesh:
 1. **Geometry (final Nexstim→SimNIBS rules)** — `sim_pos = (-x,-y,z)`;
    `gm_target` = nearest GM-surface node; coil axis `Z = (gm_target - sim_pos)`;
    handle `Y` = YZ-swap of the ".2" direction, Gram-Schmidt; `X = Y × Z`;
-   auto-flip if `X.y < 0`. Signed `c2s`/`c2c` are the nearest line-surface
+   auto-flip (180° about Z, `X` and `Y` negated) if `Y.y < 0`.
+   Signed `c2s`/`c2c` are the nearest line-surface
    intersections along `Z` (negative = below scalp); `SCD = |c2c - c2s|`.
 2. **Unified placement** — coil centre moved along `Z` to exactly `csd_mm`
    outside the scalp; orientation unchanged. New `CCD = SCD + CSD` (verified
@@ -42,8 +48,9 @@ Per subject × target (M1 / DLPFC), on a charm head mesh:
 5. **Artifact + audit** — θ* is additionally simulated through the official
    `run_simnibs` path; `artifact_check` must be ≈ 0.
 
-Dose stays individual (dI/dt per subject). Conductivities: Wagner et al.
-isotropic via `cond_utils.standard_cond()`.
+Dose stays individual (dI/dt per subject; entered in A/µs and converted
+to A/s — `× 1e6` — when passed to the SimNIBS solver). Conductivities:
+Wagner et al. isotropic via `cond_utils.standard_cond()`.
 
 ## Usage
 
@@ -82,9 +89,12 @@ Double header (row 1 = groups, row 2 = names); per subject:
   posterior (`forward_axis='Y'`). The historical X-based flip differs only by
   the 180° twin — **every |E| value is identical** (A/B full-sweep check:
   max 0.001 V/m).
-* The **optimal orientation is reported as the forward-E twin** (identical
-  |E|), so all reported E directions are anterior, matching navigated-TMS
-  practice.
+* The CLI output does **not** re-encode directions as the forward twin:
+  each case carries an anterior/posterior flag (`forward_orig_u` /
+  `forward_opt_u`) and a sagittal-midline angle computed from |E_y|, which
+  is identical for the two 180° twins. For the cohort tables, E vectors
+  were additionally re-encoded as the forward twin in downstream
+  post-processing via `forward_twin_dir()` (loss-free: |E| unchanged).
 * **Data-quality check**: one cohort's DLPFC direction exports carried a
   sign-flipped y-component (0/37 positive vs 27–36/38 in healthy groups),
   which reconstructed E backwards. `detect_direction_convention()` flags such

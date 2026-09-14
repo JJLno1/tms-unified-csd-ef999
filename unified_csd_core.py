@@ -20,9 +20,10 @@ Method (per target, M1 and DLPFC)
    production pipeline):
      sim_pos  = (-x, -y, z)                        (LPS -> RAS point)
      gm_target = nearest GM-surface node to sim_pos
-     Z = (gm_target - sim_pos) / |.||              (two-point coil axis)
+     Z = (gm_target - sim_pos) / |v|               (two-point coil axis)
      Y = (-dx, dz, dy)                             (YZ-swap of handle ".2")
-     Y <- Gram-Schmidt(Y against Z); X = Y x Z; flip if X.y < 0
+     Y <- Gram-Schmidt(Y against Z); X = Y x Z
+     flip 180 deg about Z (X, Y negated) if Y.y < 0   (anterior E at theta=0)
    Signed c2s/c2c are the nearest line-surface intersections along Z
    (negative = coil below scalp); SCD = |c2c - c2s| strictly.
 2. Unified placement: move the coil centre along Z to exactly
