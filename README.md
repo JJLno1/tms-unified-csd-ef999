@@ -1,15 +1,23 @@
 # tms-unified-csd-ef999
 
-Unified coil-to-scalp distance (CSD) re-analysis for navigated TMS cohorts:
-rebuild every coil at a **fixed CSD above the scalp** (M1 = 2 mm, DLPFC = 1 mm)
-and re-evaluate **EF99.9** (99.9th percentile of |E| in the 5 mm GM target
-sphere) for the original and the **optimal coil yaw**, with a **real FEM solve
-for every candidate angle** (5° steps, no ADM approximation).
+Unified coil-to-scalp distance (CSD) re-analysis for navigated and
+standard-target TMS cohorts: rebuild every coil at a **fixed CSD above the
+scalp** and re-evaluate **EF99.9** (99.9th percentile of |E| in the 5 mm GM
+target sphere) for the original and the **optimal coil yaw**, with a **real
+FEM solve for every candidate angle** (5° steps, no ADM approximation).
 
-> **Scope.** This repository implements the clinical M1/DLPFC unified-CSD
-> workflow (`TARGETS = ['M1', 'DLPFC']`). The C3/F3 and HCP-template-cohort
-> analyses were produced by separate workflows and are not part of this
-> repository.
+## Workflows
+
+| Script | Use case | Targets | Dose |
+|---|---|---|---|
+| `run_unified_csd.py` | Clinical M1/DLPFC (Nexstim-navigated) | M1, DLPFC (individual) | individual dI/dt |
+| `run_standard_targets.py` | Standard EEG-position targets | C3, F3 (or any 10-10) | uniform (default 75 A/µs) |
+| `run_healthy_multi_target.py` | HCP-style cohorts | M1, DLPFC (Excel) + C3, F3 (EEG) | uniform (default 75 A/µs) |
+| `run_csd_sensitivity.py` | CSD sensitivity (1–4 mm) | M1, DLPFC | individual |
+
+All workflows share `unified_csd_core.py` (coil-frame construction, signed
+geometry, parent-tet E mapping, 36-yaw real-FEM sweep, EF99.9 objective,
+forward-E twin reporting) and are idempotent/restartable.
 
 ## Why
 
