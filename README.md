@@ -71,7 +71,7 @@ use (`build_matsimnibs_final`, `compute_geometry_signed`, `parent_tet_map`, …)
 
 Double header (row 1 = groups, row 2 = names); per subject:
 `<ID>, dI/dt-rMT (A/µs), {M1,DLPFC}-{x,y,z}, {M1,DLPFC}-{x,y,z} .2`
-(Nexstim scanner LPS; ".2" = handle direction).
+(Nexstim scanner LPS; ".2" = coil direction vector, YZ-swapped into the in-plane handle/E axis).
 
 ### Outputs
 

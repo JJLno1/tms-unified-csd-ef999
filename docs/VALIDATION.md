@@ -16,6 +16,9 @@ model, Wagner isotropic conductivities, individual dI/dt).
 | DLPFC  | 12.7 ± 1.8 | 13.7 ± 1.8   | 187.8 ± 49.0| 202.2 ± 49.3 | +14.4 ± 16.1 |
 
 - Δ ≥ 0 in 74/74 cases (3 ties at θ* = 0).
+- *Note: the DLPFC original-orientation values above reflect the pre-.2y-correction
+  frame; after the direction-export sign correction (see Addendum 2026-09-01),
+  DLPFC orig = 181.0 ± 46.3 and Δ = +22.1 ± 18.3.*
 
 ## Cohort B — original TC38 cohort, n = 38 (TC001–TC057)
 
